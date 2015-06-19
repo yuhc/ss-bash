@@ -21,10 +21,10 @@
 # SOFTWARE.
 
 SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ]; do 
+while [ -h "$SOURCE" ]; do
       DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
       SOURCE="$(readlink "$SOURCE")"
-      [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" 
+      [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
@@ -34,14 +34,14 @@ usage () {
     cat $DIR/sshelp
 }
 wrong_para_prompt() {
-    echo "参数输入错误!"
-    echo "查看帮助：ssadmin.sh -h"
+    echo "Wrong input parameters!"
+    echo "Check the help mannual: ssadmin.sh -h"
 }
 
 #根据用户文件生成ssserver配置文件
 create_json () {
     echo '{' > $JSON_FILE.tmp
-    sed -E 's/(.*)/    \1/' $DIR/ssmlt.template >> $JSON_FILE.tmp 
+    sed -E 's/(.*)/    \1/' $DIR/ssmlt.template >> $JSON_FILE.tmp
     awk '
     BEGIN {
         i=1;
@@ -70,7 +70,7 @@ create_json () {
 
 run_ssserver () {
     $SSSERVER -qq -c $JSON_FILE 2>/dev/null >/dev/null &
-    echo $! > $SSSERVER_PID 
+    echo $! > $SSSERVER_PID
 }
 
 check_ssserver () {
@@ -93,12 +93,12 @@ check_sscounter () {
 
 start_ss () {
     if [ ! -e $USER_FILE ]; then
-        echo "还没有用户，请先添加一个用户"
+        echo "No existed user. Please add a user first."
         return 1
     fi
     if [ -e $SSSERVER_PID ]; then
         if check_ssserver; then
-            echo 'ss服务已启动，同一实例不能启动多次！'
+            echo 'Start failed. SS service has already started.'
             return 1
         else
             rm $SSSERVER_PID
@@ -107,49 +107,49 @@ start_ss () {
     create_json
 
     if [ -e $SSCOUNTER_PID ]; then
-        if check_sscounter ; then 
+        if check_sscounter ; then
             kill `cat $SSCOUNTER_PID`
         else
             rm $SSCOUNTER_PID
         fi
     fi
 
-    echo 'sscounter.sh启动中...'
-    ( $DIR/sscounter.sh ) & 
+    echo 'Starting sscounter.sh...'
+    ( $DIR/sscounter.sh ) &
     echo $! > $SSCOUNTER_PID
-    if check_sscounter; then 
-        echo 'sscounter.sh已启动'
+    if check_sscounter; then
+        echo 'sscounter.sh started successfully'
     else
-        echo 'sscounter.sh启动失败'
+        echo 'sscounter.sh started failed'
         return 1
     fi
 
-    echo 'ssserver启动中...'
-    run_ssserver 
+    echo 'Starting ssserver...'
+    run_ssserver
     sleep 1
-    if check_ssserver; then 
-        echo 'ssserver已启动'
+    if check_ssserver; then
+        echo 'ssserver started successfully'
     else
-        echo 'ssserver启动失败'
+        echo 'ssserver started failed'
         return 1
     fi
 }
 
 stop_ss () {
-    if check_ssserver; then 
+    if check_ssserver; then
         kill `cat $SSSERVER_PID`
-        rm $SSSERVER_PID 
+        rm $SSSERVER_PID
         del_ipt_chains 2> /dev/null
-        echo 'ssserver已关闭'
+        echo 'ssserver has been killed'
     else
-        echo 'ssserver未启动'
+        echo 'ssserver has not been started'
     fi
-    if check_sscounter; then 
+    if check_sscounter; then
         kill `cat $SSCOUNTER_PID`
         rm $SSCOUNTER_PID
-        echo 'sscounter.sh已关闭'
+        echo 'sscounter.sh has been killed'
     else
-        echo 'sscounter.sh未启动'
+        echo 'sscounter.sh has not been started'
     fi
 }
 
@@ -157,9 +157,9 @@ restart_ss () {
     stop_ss
     start_ss
 }
-    
+
 soft_restart_ss () {
-    if check_ssserver; then 
+    if check_ssserver; then
         kill -s SIGQUIT `cat $SSSERVER_PID`
         echo 'ssserver已关闭'
         kill `cat $SSCOUNTER_PID`
@@ -173,15 +173,15 @@ soft_restart_ss () {
 }
 
 status_ss () {
-    if check_ssserver; then 
-        echo 'ssserver正在运行'
+    if check_ssserver; then
+        echo 'ssserver is running'
     else
-        echo 'ssserver未启动'
+        echo 'ssserver has not been started'
     fi
-    if check_sscounter; then 
-        echo 'sscounter.sh正在运行'
+    if check_sscounter; then
+        echo 'sscounter.sh is running'
     else
-        echo 'sscounter.sh未启动'
+        echo 'sscounter.sh has not been started'
     fi
 }
 
@@ -292,7 +292,7 @@ change_user () {
     TLIMIT=$3
     TLIMIT=`bytes2gb $TLIMIT`
     if [ ! -e $USER_FILE ]; then
-        echo "目前还无用户，请先添加用户" 
+        echo "目前还无用户，请先添加用户"
         return 1
     fi
     if grep -q "^\s*$PORT\s" $USER_FILE; then
@@ -336,7 +336,7 @@ change_passwd () {
     fi
     PWORD=$2
     if [ ! -e $USER_FILE ]; then
-        echo "目前还无用户，请先添加用户" 
+        echo "目前还无用户，请先添加用户"
         return 1
     fi
     if grep -q "^\s*$PORT\s" $USER_FILE; then
@@ -448,7 +448,7 @@ show_user () {
         res=`grep "^\s*$PORT\s" $TRAFFIC_FILE`
         if [ -z "$res" ]; then
             echo "此用户不存在!"
-        else 
+        else
             head -n1 $TRAFFIC_FILE
             echo  "$res"
         fi
@@ -473,7 +473,7 @@ show_passwd () {
         res=`grep "^\s*$PORT\s" $USER_FILE`
         if [ -z "$res" ]; then
             echo "此用户不存在!"
-        else 
+        else
             head -n2 $USER_FILE
             echo  "$res"
         fi
@@ -669,19 +669,19 @@ case $1 in
         reset_used
         ;;
     start )
-        start_ss 
+        start_ss
         ;;
     stop )
-        stop_ss 
+        stop_ss
         ;;
     restart )
-        restart_ss 
+        restart_ss
         ;;
     status )
         status_ss
         ;;
     soft_restart )
-        soft_restart_ss 
+        soft_restart_ss
         ;;
     lrules )
         list_rules
