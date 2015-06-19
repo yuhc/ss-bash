@@ -161,9 +161,9 @@ restart_ss () {
 soft_restart_ss () {
     if check_ssserver; then
         kill -s SIGQUIT `cat $SSSERVER_PID`
-        echo 'ssserver已关闭'
+        echo 'ssserver has been killed'
         kill `cat $SSCOUNTER_PID`
-        echo 'sscounter.sh已关闭'
+        echo 'sscounter.sh has been killed'
         rm $SSSERVER_PID $SSCOUNTER_PID
         del_ipt_chains 2> /dev/null
         start_ss
@@ -233,7 +233,7 @@ add_user () {
         echo "\
 $PORT $PWORD $TLIMIT" >> $USER_FILE;
     else
-        echo "用户已存在!"
+        echo "User already exists!"
         return 1
     fi
 # 重新生成配置文件，并加载
@@ -292,7 +292,7 @@ change_user () {
     TLIMIT=$3
     TLIMIT=`bytes2gb $TLIMIT`
     if [ ! -e $USER_FILE ]; then
-        echo "目前还无用户，请先添加用户"
+        echo "No existed user. Please add a user first."
         return 1
     fi
     if grep -q "^\s*$PORT\s" $USER_FILE; then
@@ -317,7 +317,7 @@ change_user () {
         update_or_create_traffic_file_from_users
         calc_remaining
     else
-        echo "此用户不存在!"
+        echo "User not exist!"
         return 1
     fi
 }
@@ -336,7 +336,7 @@ change_passwd () {
     fi
     PWORD=$2
     if [ ! -e $USER_FILE ]; then
-        echo "目前还无用户，请先添加用户"
+        echo "No existed user. Please add a user first."
         return 1
     fi
     if grep -q "^\s*$PORT\s" $USER_FILE; then
@@ -361,7 +361,7 @@ change_passwd () {
         update_or_create_traffic_file_from_users
         calc_remaining
     else
-        echo "此用户不存在!"
+        echo "User not exist!"
         return 1
     fi
 }
@@ -381,7 +381,7 @@ change_limit () {
     TLIMIT=$2
     TLIMIT=`bytes2gb $TLIMIT`
     if [ ! -e $USER_FILE ]; then
-        echo "目前还无用户，请先添加用户"
+        echo "No existed user. Please add a user first."
         return 1
     fi
     if grep -q "^\s*$PORT\s" $USER_FILE; then
@@ -399,7 +399,7 @@ change_limit () {
         update_or_create_traffic_file_from_users
         calc_remaining
     else
-        echo "此用户不存在!"
+        echo "User not exist!"
         return 1
     fi
 }
@@ -412,7 +412,7 @@ change_all_limit () {
     TLIMIT=$1
     TLIMIT=`bytes2gb $TLIMIT`
     if [ ! -e $USER_FILE ]; then
-        echo "目前还无用户，请先添加用户"
+        echo "No existed user. Please add a user first."
         return 1
     fi
     cat $USER_FILE |
@@ -447,7 +447,7 @@ show_user () {
         fi
         res=`grep "^\s*$PORT\s" $TRAFFIC_FILE`
         if [ -z "$res" ]; then
-            echo "此用户不存在!"
+            echo "User not exist!"
         else
             head -n1 $TRAFFIC_FILE
             echo  "$res"
@@ -472,7 +472,7 @@ show_passwd () {
         fi
         res=`grep "^\s*$PORT\s" $USER_FILE`
         if [ -z "$res" ]; then
-            echo "此用户不存在!"
+            echo "User not exist!"
         else
             head -n2 $USER_FILE
             echo  "$res"
@@ -481,7 +481,7 @@ show_passwd () {
 }
 reset_limit () {
     if [ ! -e $USER_FILE ]; then
-        echo "目前还无用户，请先添加用户"
+        echo "No existed user. Please add a user first."
         return 1
     fi
     if [ $# -eq 0 ]; then
@@ -525,7 +525,7 @@ reset_limit () {
             update_or_create_traffic_file_from_users
             calc_remaining
         else
-            echo "此用户不存在!"
+            echo "User not exist!"
             return 1
         fi
     fi
@@ -533,7 +533,7 @@ reset_limit () {
 
 reset_used () {
     if [ ! -e $USER_FILE ]; then
-        echo "目前还无用户，请先添加用户"
+        echo "No existed user. Please add a user first."
         return 1
     fi
     while [ -e $TRAFFIC_LOG.lock ]; do
@@ -575,7 +575,7 @@ reset_used () {
             }' > $TRAFFIC_LOG.tmp;
             mv $TRAFFIC_LOG.tmp $TRAFFIC_LOG
         else
-            echo "此用户不存在!"
+            echo "User not exist!"
             rm $TRAFFIC_LOG.lock
             return 1
         fi
@@ -641,7 +641,7 @@ case $1 in
     rlim )
         shift
         if [ $# -eq 0 ]; then
-            echo "请指定用户端口号"
+            echo "Please assign the port number"
             exit 1
         else
             reset_limit $1
@@ -658,7 +658,7 @@ case $1 in
     rused )
         shift
         if [ $# -eq 0 ]; then
-            echo "请指定用户端口号"
+            echo "Please assign the port number"
             exit 1
         else
             reset_used $1
